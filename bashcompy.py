@@ -1,12 +1,18 @@
 indent = " " * 4
 
 from sys import argv
+from os.path import isfile
 from yaml import safe_load
 from re import match
 
 def print(*strings, indent_lvl=0):
     for string in [""] if len(strings) == 0 else strings:
         __builtins__.print("" if string == "" else indent * indent_lvl + string)
+
+if len(argv) != 2:
+    exit(1)
+elif not isfile(argv[1]):
+    exit(2)
 
 data = safe_load(open(argv[1], "r"))
 commands = sorted(data.keys(), reverse=True, key=lambda string: " " not in string or "*" in string)
@@ -23,7 +29,7 @@ print("local cur=${COMP_WORDS[COMP_CWORD]}",
     "local compwords=(\"${COMP_WORDS[@]:1:$COMP_CWORD-1}\")",
     "local compline=\"${compwords[*]}\"","",
     "case \"$compline\" in", indent_lvl=1)
-    
+
 for command in commands[1:] + [commands[0]]:
     print(("\"" + " ".join(command.split()[1:]).replace("*", "\"*\"") + "\"" + ("" if "*" in command else "*") + ")").replace("\"\"*)", "*)"), indent_lvl=2)
     print("while read -r; do", f"{indent}COMPREPLY+=(\"$REPLY\")",
