@@ -1,20 +1,42 @@
 indent = " " * 4
 
-from sys import argv
-from os.path import isfile
-from yaml import safe_load
+from sys import argv, executable, stdout
+from os.path import isfile, isdir
+from os import system
 from re import match
+
+try:
+    from yaml import safe_load
+except:
+    try:
+        assert not system(f"{executable} -m pip install pyyaml")
+        from yaml import safe_load
+    except:
+        exit(4)
 
 def print(*strings, indent_lvl=0):
     for string in [""] if len(strings) == 0 else strings:
-        __builtins__.print("" if string == "" else indent * indent_lvl + string)
+        if write2file:
+            global writebuffer
+            writebuffer += "\n" if string == "" else f"{indent * indent_lvl}{string}\n"
+        else:
+            __builtins__.print("" if string == "" else indent * indent_lvl + string)
 
-if len(argv) != 2:
+write2file = False
+writebuffer = ""
+
+if len(argv) == 3:
+    write2file = True
+    if isdir(argv[2]):
+        exit(3)
+elif len(argv) != 2:
     exit(1)
-elif not isfile(argv[1]):
+
+if not isfile(argv[1]):
     exit(2)
 
-data = safe_load(open(argv[1], "r"))
+with open(argv[1], "r") as infile:
+    data = safe_load(infile)
 commands = sorted(data.keys(), reverse=True, key=lambda string: " " not in string or "*" in string)
 
 print(f"_{commands[0]}_completions_filter() {{")
@@ -37,3 +59,7 @@ for command in commands[1:] + [commands[0]]:
 -W \"$(_{commands[0]}_completions_filter \"{' '.join([string for string in data[command] if not match('^<.+>$', string)])}\")\" -- \"$cur\")".replace(f"-W \"$(_{commands[0]}_completions_filter \"\")\" ", ""), ";;", indent_lvl=3)
 
 print(f"{indent}esac", "}", f"complete -F _{commands[0]}_completions {commands[0]}")
+
+if write2file:
+    with open(argv[2], "w") as outfile:
+        outfile.write(writebuffer)

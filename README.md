@@ -12,11 +12,17 @@ Copy this and paste it in your terminal:
 ```bash
 wget https://raw.githubusercontent.com/marquis-ng/bashcompy/main/bashcompy.py
 # curl https://raw.githubusercontent.com/marquis-ng/bashcompy/main/bashcompy.py -o bashcompy.py
-python3 bashcompy.py abc.yaml # see below for syntax of the yaml file
 ```
 Done!
 
 ## Documentation
+### Usage
+```
+# python3 bashcompy.py [input file] [[output file]]
+python3 bashcompy.py abc.yaml # print completion script to stdout
+python3 bashcompy.py abc.yaml abc.bash # write completion script to file
+```
+
 ### Example
 Suppose we have `program` with subcommand `foo`, `bar` and `baz`:
 ```
@@ -98,7 +104,9 @@ python3 bashcompy.py abc.yaml
 | :-- | :-- |
 | `0` | No errors |
 | `1` | Invalid arguments supplied |
-| `2` | File in argument does not exist |
+| `2` | Input file does not exist |
+| `3` | Output file is a directory |
+| `4` | `ImportError` and module failed to install |
 
 ## Extras
 ### Editing the generated script manually
