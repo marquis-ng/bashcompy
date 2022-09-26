@@ -58,7 +58,8 @@ for command in commands[1:] + [commands[0]]:
         f"done < <(compgen {''.join([f'-A {string[1:-1]} ' for string in data[command] if match('^<.+>$', string)])}\
 -W \"$(_{commands[0]}_completions_filter \"{' '.join([string for string in data[command] if not match('^<.+>$', string)])}\")\" -- \"$cur\")".replace(f"-W \"$(_{commands[0]}_completions_filter \"\")\" ", ""), ";;", indent_lvl=3)
 
-print(f"{indent}esac", "}", f"complete -F _{commands[0]}_completions {commands[0]}")
+print(f"{indent}esac", "}", "", f"if command -v \"{commands[0]}\" > /dev/null; then", f"{indent}complete -F _{commands[0]}_completions {commands[0]}",
+    "else", f"{indent}unset $(declare -F | awk \"\$3~\\\"^_{commands[0]}_completions\\\" {{printf(\\\"%s\\n\\\", \$3)}}\")", "fi")
 
 if write2file:
     with open(argv[2], "w") as outfile:
