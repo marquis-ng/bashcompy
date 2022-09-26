@@ -2,7 +2,7 @@
 A simple Bash completion script generator, written in Python.
 
 ## Introduction
-`bashcompy` can shorten the process of creating a completion script by creating a `.yaml` file only.
+`bashcompy` can shorten the process of creating a completion script by creating a `.yml` file only.
 
 ## Why is it called "bashcompy"?
 Split "bashcompy" into "bash", "comp", "py". It means "Bash completion (written in) Python".
