@@ -39,7 +39,7 @@ with open(argv[1], "r") as infile:
     data = safe_load(infile)
 commands = sorted(data.keys(), reverse=True, key=lambda string: " " not in string or "*" in string)
 
-print(f"_{commands[0]}_completions_filter() {{")
+print(f"if ! command -v {commands[0]} > /dev/null; then", f"{indent}return", "fi", "", f"_{commands[0]}_completions_filter() {{")
 print("local words=\"$1\"", "local cur=${COMP_WORDS[COMP_CWORD]}", "local result=()", "",
     "if [ \"${cur:0:1}\" = \"-\" ]; then", f"{indent}echo \"$words\"",
     "else", f"{indent}for word in $words; do", f"{indent * 2}[ \"${{word:0:1}}\" != \"-\" ] && result+=(\"$word\")", f"{indent}done", "",
@@ -58,8 +58,7 @@ for command in commands[1:] + [commands[0]]:
         f"done < <(compgen {''.join([f'-A {string[1:-1]} ' for string in data[command] if match('^<.+>$', string)])}\
 -W \"$(_{commands[0]}_completions_filter \"{' '.join([string for string in data[command] if not match('^<.+>$', string)])}\")\" -- \"$cur\")".replace(f"-W \"$(_{commands[0]}_completions_filter \"\")\" ", ""), ";;", indent_lvl=3)
 
-print(f"{indent}esac", "}", "", f"if command -v \"{commands[0]}\" > /dev/null; then", f"{indent}complete -F _{commands[0]}_completions {commands[0]}",
-    "else", f"{indent}unset $(declare -F | awk \"\$3~\\\"^_{commands[0]}_completions\\\" {{printf(\\\"%s\\n\\\", \$3)}}\")", "fi")
+print(f"{indent}esac", "}", "", f"complete -F _{commands[0]}_completions {commands[0]}")
 
 if write2file:
     with open(argv[2], "w") as outfile:
